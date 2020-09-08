@@ -20,12 +20,12 @@ router.post('/message', function (req, res, next) {
       'You need to provide: title (string), body (string), from (your ID), to (list of IDs)'
     );
 
-  send(title, body, from, to);
-
-  res.json({
-    status: 'success',
-    message: `Message sent to ${to.length} people.`,
-    data: null,
+  send(title, body, from, to, response => {
+    res.json({
+      status: response.success ? 'success' : 'fail',
+      message: response.message,
+      data: response.success ? null : { error: response.error },
+    });
   });
 });
 

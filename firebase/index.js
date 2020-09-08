@@ -5,15 +5,15 @@ const { load } = require('../util/jsonPersist');
 //   credential: admin.credential.applicationDefault(),
 // });
 
-module.exports.send = (title, body, from, to) => {
+module.exports.send = (title, body, from, to, callback) => {
   const allUsers = load();
   const toUsers = allUsers.filter(u => to.includes(u.id));
   const fromUser = allUsers.find(u => u.id === from);
-  sendMessage(title, body, fromUser, toUsers);
+  sendMessage(title, body, fromUser, toUsers, callback);
   // toUsers.forEach(u => sendMessage(title, body, fromUser, u));
 };
 
-const sendMessage = (title, body, fromUser, toUsers) => {
+const sendMessage = async (title, body, fromUser, toUsers, callback) => {
   const tokens = toUsers.map(u => u.key);
   var message = {
     data: {
@@ -24,15 +24,21 @@ const sendMessage = (title, body, fromUser, toUsers) => {
     },
     tokens,
   };
-  console.log(message);
 
-  admin
-    .messaging()
-    .sendMulticast(message)
-    .then(response => {
-      console.log(`${response.successCount} messages were sent successfully`);
-    })
-    .catch(error => {
-      console.log('Error sending message:', error);
+  try {
+    const response = await admin.messaging().sendMulticast(message);
+    console.log(`${response.successCount} messages were sent successfully`);
+    callback({
+      message: `${response.successCount} messages were sent successfully`,
+      successCount: response.successCount,
+      success: true,
     });
+  } catch (error) {
+    callback({
+      message: `Error sending message:`,
+      error: error,
+      successCount: 0,
+      success: false,
+    });
+  }
 };
