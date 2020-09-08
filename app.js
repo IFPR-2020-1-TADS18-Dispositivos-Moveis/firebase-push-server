@@ -7,12 +7,23 @@ const admin = require('firebase-admin');
 require('dotenv').config();
 
 admin.initializeApp({
-  credential: admin.credential.applicationDefault(),
+  credential: admin.credential.cert(
+    JSON.parse(
+      Buffer.from(process.env.GOOGLE_CONFIG_BASE64, 'base64').toString('ascii')
+    )
+  ),
 });
+
+// admin.initializeApp({
+//   credential: admin.credential.applicationDefault(),
+// });
 
 const indexRouter = require('./routes/index');
 
 const app = express();
+
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'jade');
 
 app.use(logger('dev'));
 app.use(express.json());

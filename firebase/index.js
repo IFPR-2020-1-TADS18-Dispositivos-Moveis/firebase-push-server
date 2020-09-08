@@ -1,10 +1,6 @@
 const admin = require('firebase-admin');
 const { load } = require('../util/jsonPersist');
 
-// admin.initializeApp({
-//   credential: admin.credential.applicationDefault(),
-// });
-
 module.exports.send = (title, body, from, to, callback) => {
   const allUsers = load();
   const toUsers = allUsers.filter(u => to.includes(u.id));
@@ -34,6 +30,7 @@ const sendMessage = async (title, body, fromUser, toUsers, callback) => {
       success: true,
     });
   } catch (error) {
+    console.log(`Error sending message:`, error);
     callback({
       message: `Error sending message:`,
       error: error,
